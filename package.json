@@ -1,0 +1,9 @@
+{
+  "name": "conduits",
+  "version": "0.0.0",
+  "description": "Coming soon!",
+  "main": "index.js",
+  "repository": "https://github.com/pelotom/conduits",
+  "author": "Tom Crockett <pelotom@gmail.com>",
+  "license": "MIT"
+}

@@ -6,12 +6,13 @@ import 'rxjs/add/observable/never';
 const stringOutput = Observable.of('hello');
 const neverOutput = Observable.never<never>();
 
+declare const stringVal: string | Observable<string>;
+
 // Connecting a single conduit
 (c: Conduit<{ a: string; b: number }, { c: string; b: number }>) => {
   const result = connect(c);
-  const value = Observable.of('hello');
-  run(result, { b: value }); // $ExpectError
-  const outputs = run(result, { a: value });
+  run(result, { b: stringVal }); // $ExpectError
+  const outputs = run(result, { a: stringVal });
   outputs.b; // $ExpectError
   outputs.c; // $ExpectType Observable<string>
 };

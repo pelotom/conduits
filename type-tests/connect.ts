@@ -24,7 +24,16 @@ import 'rxjs/add/observable/of';
   outputs.d; // $ExpectType Observable<boolean>
 };
 
-// Same key can't appear in both input and output with different value types
+// Same key can't appear in multiple places with different value types
+(c1: Conduit<{ a: string }, {}>, c2: Conduit<{ a: number }, {}>) => {
+  connect(c1, c2); // $ExpectError
+};
+(c1: Conduit<{}, { a: string }>, c2: Conduit<{ a: number }, {}>) => {
+  connect(c1, c2); // $ExpectError
+};
 (c1: Conduit<{ a: string }, {}>, c2: Conduit<{}, { a: number }>) => {
+  connect(c1, c2); // $ExpectError
+};
+(c1: Conduit<{}, { a: string }>, c2: Conduit<{}, { a: number }>) => {
   connect(c1, c2); // $ExpectError
 };

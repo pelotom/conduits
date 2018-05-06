@@ -7,7 +7,6 @@ export type Observables<T extends Rec> = { [K in keyof T]: Observable<T[K]> };
 export type ConsistentWith<O> = Partial<O> & Rec;
 
 export interface Conduit<I extends Rec, O extends ConsistentWith<I>> {
-  // tslint:disable-next-line callable-types
   (inputs: Observables<I>): Observables<O>;
 }
 

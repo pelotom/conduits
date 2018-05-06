@@ -1,4 +1,4 @@
-import { Conduit, connect } from "conduits";
+import { Conduit, connect } from 'conduits';
 
 declare const c0: Conduit<{ a: string }, { a: number }>; // $ExpectError
 

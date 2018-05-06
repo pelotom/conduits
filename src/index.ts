@@ -28,8 +28,3 @@ export function connect<
   return undefined as any
 }
 
-// declare const c1: Conduit<{ a: string; b: string; c: boolean }, { x: number }>
-// declare const c2: Conduit<{ x: number }, { a: string; c: boolean }>
-
-// const res1 = connect(c1, c2)
-// const res2 = seal(res1)

@@ -1,0 +1,13 @@
+{
+  "compilerOptions": {
+    "noImplicitAny": true,
+    "noImplicitThis": true,
+    "strictNullChecks": true,
+    "strictFunctionTypes": true,
+    "lib": ["es6"],
+    "baseUrl": ".",
+    "paths": {
+      "conduits": ["../lib"]
+    }
+  }
+}

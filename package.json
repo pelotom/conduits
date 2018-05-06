@@ -7,9 +7,13 @@
   "author": "Tom Crockett <pelotom@gmail.com>",
   "license": "MIT",
   "devDependencies": {
+    "dtslint": "^0.3.0",
     "typescript": "^2.8.3"
   },
   "dependencies": {
     "rxjs": "^5"
+  },
+  "scripts": {
+    "test": "dtslint type-tests"
   }
 }

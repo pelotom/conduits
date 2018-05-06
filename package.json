@@ -5,5 +5,11 @@
   "main": "index.js",
   "repository": "https://github.com/pelotom/conduits",
   "author": "Tom Crockett <pelotom@gmail.com>",
-  "license": "MIT"
+  "license": "MIT",
+  "devDependencies": {
+    "typescript": "^2.8.3"
+  },
+  "dependencies": {
+    "rxjs": "^5"
+  }
 }

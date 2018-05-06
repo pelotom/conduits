@@ -2,12 +2,10 @@ import { Observable } from 'rxjs/Observable';
 
 export type Rec = Record<string, {} | null>;
 
-export type Observables<T extends Rec> = { [K in keyof T]: Observable<T[K]> };
-
 export type ConsistentWith<O> = Partial<O> & Rec;
 
 export interface Conduit<I extends Rec, O extends ConsistentWith<I>> {
-  (inputs: Observables<I>): Observables<O>;
+  (inputs: <K extends keyof I>(name: K) => Observable<I[K]>): { [K in keyof O]: Observable<O[K]> };
 }
 
 export type Omit<T, U> = {

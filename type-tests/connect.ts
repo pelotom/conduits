@@ -6,11 +6,12 @@ import 'rxjs/add/observable/never';
 const stringOutput = Observable.of('hello');
 const neverOutput = Observable.never<never>();
 
-// Connecting removes matching keys from input/output
+// Connecting a single conduit
 (c: Conduit<{ a: string; b: number }, { c: string; b: number }>) => {
   const result = connect(c);
-  run(result, { b: 'hello ' }); // $ExpectError
-  const outputs = run(result, { a: 'hello' });
+  const value = Observable.of('hello');
+  run(result, { b: value }); // $ExpectError
+  const outputs = run(result, { a: value });
   outputs.b; // $ExpectError
   outputs.c; // $ExpectType Observable<string>
 };

@@ -29,3 +29,15 @@ export function connect<I extends Rec, O extends ConsistentWith<I>>(
 ): Conduit<Omit<I, O>, Omit<O, I>> {
   return undefined as any;
 }
+
+export function run<O extends Rec>(conduit: Conduit<{}, O>): { [K in keyof O]: Observable<O[K]> };
+export function run<I extends Rec, O extends ConsistentWith<I>>(
+  conduit: Conduit<I, O>,
+  sources: { [K in keyof I]: I[K] | Observable<I[K]> },
+): { [K in keyof O]: Observable<O[K]> };
+export function run<I extends Rec, O extends ConsistentWith<I>>(
+  conduit: Conduit<I, O>,
+  sources?: { [K in keyof I]: I[K] | Observable<I[K]> },
+): { [K in keyof O]: Observable<O[K]> } {
+  return undefined as any;
+}

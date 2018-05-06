@@ -1,4 +1,4 @@
-import { Conduit, connect } from 'conduits';
+import { Conduit, connect, run } from 'conduits';
 import { Observable } from 'rxjs/Observable';
 import 'rxjs/add/observable/of';
 import 'rxjs/add/observable/never';
@@ -9,8 +9,8 @@ const neverOutput = Observable.never<never>();
 // Connecting removes matching keys from input/output
 (c: Conduit<{ a: string; b: number }, { c: string; b: number }>) => {
   const result = connect(c);
-  result((x: 'b') => stringOutput); // $ExpectError
-  const outputs = result((x: 'a') => stringOutput);
+  run(result, { b: 'hello ' }); // $ExpectError
+  const outputs = run(result, { a: 'hello' });
   outputs.b; // $ExpectError
   outputs.c; // $ExpectType Observable<string>
 };
@@ -21,7 +21,7 @@ const neverOutput = Observable.never<never>();
   c2: Conduit<{ a: string; b: number; c: string }, { a: string; b: number }>,
 ) => {
   const result = connect(c1, c2);
-  const outputs = result(() => neverOutput);
+  const outputs = run(result);
   outputs.a; // $ExpectError
   outputs.b; // $ExpectError
   outputs.c; // $ExpectError

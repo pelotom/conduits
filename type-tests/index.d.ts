@@ -1,2 +1,2 @@
 // tslint:disable-line no-useless-files
-// TypeScript Version: 2.3
+// TypeScript Version: 2.4

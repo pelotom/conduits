@@ -4,16 +4,18 @@ export type Rec = Record<string, {} | null>;
 
 export type Observables<T extends Rec> = { [K in keyof T]: Observable<T[K]> };
 
+export type ConsistentWith<O> = Partial<O> & Rec;
+
+export type Mutex<O> = { [_ in keyof O]?: never } & Rec;
+
 export interface Conduit<I extends Rec, O extends Rec> {
   // tslint:disable-next-line callable-types
   (inputs: Observables<I>): Observables<O>;
 }
 
-export type Mutex<O> = { [_ in keyof O]?: never } & Rec;
-
-export type ConsistentWith<O> = Partial<O> & Rec;
-
-export type Omit<T, U> = { [K in Exclude<keyof T, keyof U>]: T[K] };
+export type Omit<T, U> = {
+  [K in ({ [P in keyof T]: P } & { [P in keyof U]: never } & { [x: string]: never })[keyof T]]: T[K]
+};
 
 export function connect<I1 extends Rec, O1 extends ConsistentWith<I1>>(
   c1: Conduit<I1, O1>,

@@ -6,7 +6,7 @@ export type Observables<T extends Rec> = { [K in keyof T]: Observable<T[K]> };
 
 export type ConsistentWith<O> = Partial<O> & Rec;
 
-export interface Conduit<I extends Rec, O extends Rec> {
+export interface Conduit<I extends Rec, O extends ConsistentWith<I>> {
   // tslint:disable-next-line callable-types
   (inputs: Observables<I>): Observables<O>;
 }
@@ -21,8 +21,8 @@ export function connect<I1 extends Rec, O1 extends ConsistentWith<I1>>(
 export function connect<
   I1 extends Rec,
   O1 extends ConsistentWith<I1>,
-  I2 extends ConsistentWith<O1>,
-  O2 extends ConsistentWith<I2>
+  I2 extends ConsistentWith<I1 & O1>,
+  O2 extends ConsistentWith<I1 & O1 & I2>
 >(
   c1: Conduit<I1, O1>,
   c2: Conduit<I2, O2>,

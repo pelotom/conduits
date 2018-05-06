@@ -2,11 +2,6 @@ import { Conduit, connect } from 'conduits';
 import { Observable } from 'rxjs/Observable';
 import 'rxjs/add/observable/of';
 
-// Same key can't appear in both input and output with different value types
-(c: Conduit<{ a: string; b: number }, { c: string; b: string }>) => {
-  connect(c); // $ExpectError
-};
-
 // Connecting removes matching keys from input/output
 (c: Conduit<{ a: string; b: number }, { c: string; b: number }>) => {
   const result = connect(c);
@@ -27,4 +22,9 @@ import 'rxjs/add/observable/of';
   outputs.b; // $ExpectError
   outputs.c; // $ExpectError
   outputs.d; // $ExpectType Observable<boolean>
+};
+
+// Same key can't appear in both input and output with different value types
+(c1: Conduit<{ a: string }, {}>, c2: Conduit<{}, { a: number }>) => {
+  connect(c1, c2); // $ExpectError
 };

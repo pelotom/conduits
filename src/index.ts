@@ -1,4 +1,5 @@
 import { Observable } from 'rxjs/Observable';
+import 'rxjs/add/observable/of';
 
 export type Rec = Record<string, {} | null>;
 
@@ -39,5 +40,8 @@ export function run<I extends Rec, O extends ConsistentWith<I>>(
   conduit: Conduit<I, O>,
   sources?: { [K in keyof I]: I[K] | Observable<I[K]> },
 ): { [K in keyof O]: Observable<O[K]> } {
-  return undefined as any;
+  return conduit(p => {
+    const v = sources && sources[p];
+    return v instanceof Observable ? v : Observable.of(v);
+  });
 }

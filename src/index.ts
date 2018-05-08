@@ -1,7 +1,12 @@
-import { Observable } from 'rxjs/Observable';
+import { Observable, Subscribable } from 'rxjs/Observable';
 import { Subject } from 'rxjs/Subject';
-import { ReplaySubject } from 'rxjs/ReplaySubject';
+import { Subscription } from 'rxjs/Subscription';
+import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 import 'rxjs/add/observable/of';
+import 'rxjs/add/operator/filter';
+import 'rxjs/add/operator/publishReplay';
+import { connectableObservableDescriptor } from 'rxjs/observable/ConnectableObservable';
+import { Observer } from 'rxjs/Observer';
 
 export type ConsistentWith<T, U> = Pick<U, keyof T & keyof U>;
 
@@ -39,20 +44,33 @@ function createDataflow<I, O>(conduits: Conduit<I, O>[]): Dataflow<I, O> {
   return {
     add: (other: Conduit<any, any>) => createDataflow([...conduits, other]),
     run: (): Record<string, Observable<any>> => {
-      const inputs: { [K in string]: Subject<any> } = {};
+      interface Foo {
+        observer: Observer<any>;
+        observable: Observable<any>;
+      }
+      const subjects: Record<string, Foo> = {};
 
-      const getInput = (name: string): Subject<any> => {
-        if (!(name in inputs)) inputs[name] = new ReplaySubject();
-        return inputs[name];
+      const getFoo = (name: string): Foo => {
+        if (!(name in subjects)) {
+          const observer = new Subject();
+          const observable = observer.publishReplay(1).refCount();
+          observable.subscribe(value => {});
+          subjects[name] = {
+            observer,
+            observable,
+          };
+        }
+        return subjects[name];
       };
 
       const allOutputs: Outputs<any> = {};
       conduits.forEach(conduit => {
-        const outputs = conduit(getInput);
+        const outputs = conduit(name => getFoo(name).observable);
         for (const name in outputs) {
           const output = outputs[name];
-          if (!(name in allOutputs)) allOutputs[name] = output;
-          output.subscribe(getInput(name));
+          const foo = getFoo(name);
+          allOutputs[name] = foo.observable;
+          output.do(value => console.log('output', { name, value })).subscribe(foo.observer);
         }
       });
 

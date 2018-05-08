@@ -2,15 +2,14 @@ import { Observable } from 'rxjs/Observable';
 import 'rxjs/add/operator/map';
 import 'rxjs/add/operator/take';
 import 'rxjs/add/observable/of';
-import { Conduit, dataflow } from '.';
+import { Conduit, emptyDataflow, source } from '.';
 
 it('basic', async () => {
   const c: Conduit<{ s: string }, { n: number }> = get => ({
     n: get('s').map(s => s.length),
   });
-  const d = dataflow().add(c);
-  const c2: Conduit<{}, { s: string }> = () => ({ s: Observable.of('hello') });
-  const d2 = d.add(c2);
+  const d = emptyDataflow.add(c);
+  const d2 = d.add(source({ s: Observable.of('hello') }));
   const n = await d2.run().n.toPromise();
   expect(n).toBe(5);
 });

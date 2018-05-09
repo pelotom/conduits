@@ -17,10 +17,13 @@ export interface Conduit<I, O> {
   (getInput: GetInput<I>): Outputs<O>;
 }
 
+export type Source<O> = { [K in keyof O]: O[K] | Observable<O[K]> };
+
 export interface IncompleteDataflow<I, O> {
   add<I2 extends ConsistentWith<I2, I & O>, O2 extends ConsistentWith<O2, I & O & I2>>(
     other: Conduit<I2, O2>,
   ): Dataflow<I & I2, O & O2>;
+  add<O2>(o: Source<O2>): Dataflow<I, O & O2>;
 }
 
 export interface CompleteDataflow<I, O extends I> extends IncompleteDataflow<I, O> {
@@ -31,19 +34,10 @@ export type Dataflow<I, O> = O extends I ? CompleteDataflow<I, O> : IncompleteDa
 
 export const emptyDataflow: Dataflow<{}, {}> = createDataflow([]);
 
-export const source = <O>(o: { [K in keyof O]: O[K] | Observable<O[K]> }): Conduit<{}, O> => {
-  const outputs: Outputs<O> = {} as any;
-  for (const k in o) {
-    const val = o[k];
-    outputs[k] = val instanceof Observable ? val : Observable.of(val);
-  }
-  return () => outputs;
-};
-
 function createDataflow<I, O>(conduits: Conduit<I, O>[]): Dataflow<I, O> {
   return {
-    add: (other: Conduit<any, any>) => createDataflow([...conduits, other]),
-    run: (): Record<string, Observable<any>> => {
+    add: (o: any) => createDataflow([...conduits, typeof o === 'function' ? o : fromSource(o)]),
+    run(): Record<string, Observable<any>> {
       interface Foo {
         observer: Observer<any>;
         observable: Observable<any>;
@@ -74,4 +68,13 @@ function createDataflow<I, O>(conduits: Conduit<I, O>[]): Dataflow<I, O> {
       return allOutputs;
     },
   } as any;
+}
+
+function fromSource<O>(source: Source<O>): Conduit<{}, O> {
+  const outputs: Outputs<O> = {} as any;
+  for (const k in source) {
+    const val = source[k];
+    outputs[k] = val instanceof Observable ? val : Observable.of(val);
+  }
+  return () => outputs;
 }

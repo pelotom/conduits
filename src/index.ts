@@ -54,11 +54,8 @@ function createDataflow<I, O>(conduits: Conduit<I, O>[]): Dataflow<I, O> {
         if (!(name in subjects)) {
           const observer = new Subject();
           const observable = observer.publishReplay(1).refCount();
-          observable.subscribe(value => {});
-          subjects[name] = {
-            observer,
-            observable,
-          };
+          observable.subscribe(() => {}); // Avoid hanging
+          subjects[name] = { observer, observable };
         }
         return subjects[name];
       };
@@ -68,9 +65,9 @@ function createDataflow<I, O>(conduits: Conduit<I, O>[]): Dataflow<I, O> {
         const outputs = conduit(name => getFoo(name).observable);
         for (const name in outputs) {
           const output = outputs[name];
-          const foo = getFoo(name);
-          allOutputs[name] = foo.observable;
-          output.do(value => console.log('output', { name, value })).subscribe(foo.observer);
+          const { observer, observable } = getFoo(name);
+          allOutputs[name] = observable;
+          output.subscribe(x => observer.next(x), e => observer.error(e));
         }
       });
 

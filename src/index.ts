@@ -20,7 +20,9 @@ export interface IncompleteDataflow<I, O extends ConsistentWith<O, I>> {
   add<I2 extends ConsistentWith<I2, I & O>, O2 extends ConsistentWith<O2, I & O & I2>>(
     other: Conduit<I2, O2>,
   ): Dataflow<I & I2, O & O2>;
-  add<O2 extends ConsistentWith<O2, I & O>>(o: Source<O2>): Dataflow<I, O & O2>;
+  add<O2 extends {} extends O2 ? never : ConsistentWith<O2, I & O>>(
+    o: Source<O2>,
+  ): Dataflow<I, O & O2>;
 }
 
 export interface CompleteDataflow<I, O extends I> extends IncompleteDataflow<I, O> {

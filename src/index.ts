@@ -27,7 +27,7 @@ export interface IncompleteDataflow<I, O> {
 }
 
 export interface CompleteDataflow<I, O extends I> extends IncompleteDataflow<I, O> {
-  run(): { [K in keyof O]: Observable<O[K]> };
+  run(): Outputs<O>;
 }
 
 export type Dataflow<I, O> = O extends I ? CompleteDataflow<I, O> : IncompleteDataflow<I, O>;

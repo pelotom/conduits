@@ -21,7 +21,7 @@
     "build": "tsc",
     "format":
       "prettier $([ \"$CI\" == true ] && echo --list-different || echo --write) './**/*.{ts,tsx,js,json,css}'",
-    "test": "jest",
+    "test": "jest --coverage",
     "test-types": "dtslint type-tests"
   },
   "jest": {

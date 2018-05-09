@@ -1,0 +1,1 @@
+[![Build Status](https://travis-ci.com/pelotom/conduits.svg?branch=master)](https://travis-ci.com/pelotom/conduits) [![Coverage Status](https://coveralls.io/repos/github/pelotom/conduits/badge.svg?branch=master)](https://coveralls.io/github/pelotom/conduits?branch=master)

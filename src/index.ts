@@ -38,13 +38,13 @@ function createDataflow<I, O>(conduits: Conduit<I, O>[]): Dataflow<I, O> {
   return {
     add: (o: any) => createDataflow([...conduits, typeof o === 'function' ? o : fromSource(o)]),
     run(): Record<string, Observable<any>> {
-      interface Foo {
+      interface IO {
         observer: Observer<any>;
         observable: Observable<any>;
       }
-      const subjects: Record<string, Foo> = {};
+      const subjects: Record<string, IO> = {};
 
-      const getFoo = (name: string): Foo => {
+      const get = (name: string): IO => {
         if (!(name in subjects)) {
           const observer = new Subject();
           const observable = observer.publishReplay(1).refCount();
@@ -54,18 +54,18 @@ function createDataflow<I, O>(conduits: Conduit<I, O>[]): Dataflow<I, O> {
         return subjects[name];
       };
 
-      const allOutputs: Outputs<any> = {};
+      const observables: Record<string, Observable<any>> = {};
       conduits.forEach(conduit => {
-        const outputs = conduit(name => getFoo(name).observable);
+        const outputs = conduit(name => get(name).observable);
         for (const name in outputs) {
           const output = outputs[name];
-          const { observer, observable } = getFoo(name);
-          allOutputs[name] = observable;
+          const { observer, observable } = get(name);
+          observables[name] = observable;
           output.subscribe(x => observer.next(x), e => observer.error(e));
         }
       });
 
-      return allOutputs;
+      return observables;
     },
   } as any;
 }

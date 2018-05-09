@@ -21,15 +21,14 @@
     "build": "tsc",
     "format":
       "prettier $([ \"$CI\" == true ] && echo --list-different || echo --write) './**/*.{ts,tsx,js,json,css}'",
-    "test-types": "yarn build && dtslint type-tests"
+    "test": "jest",
+    "test-types": "dtslint type-tests"
   },
   "jest": {
-    "verbose": false,
     "testRegex": "src/.*\\.spec.ts$",
     "moduleFileExtensions": ["ts", "js"],
     "transform": {
       "\\.ts$": "<rootDir>/node_modules/ts-jest/preprocessor"
-    },
-    "testEnvironment": "node"
+    }
   }
 }

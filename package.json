@@ -2,10 +2,11 @@
   "name": "conduits",
   "version": "0.0.0",
   "description": "Coming soon!",
-  "main": "lib/index.js",
   "repository": "https://github.com/pelotom/conduits",
   "author": "Tom Crockett <pelotom@gmail.com>",
   "license": "MIT",
+  "main": "lib/index.js",
+  "types": "./lib/index.d.ts",
   "devDependencies": {
     "@types/jest": "^22.2.3",
     "coveralls": "^3.0.1",

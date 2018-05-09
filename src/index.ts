@@ -1,12 +1,9 @@
-import { Observable, Subscribable } from 'rxjs/Observable';
+import { Observable } from 'rxjs/Observable';
+import { Observer } from 'rxjs/Observer';
 import { Subject } from 'rxjs/Subject';
-import { Subscription } from 'rxjs/Subscription';
-import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 import 'rxjs/add/observable/of';
 import 'rxjs/add/operator/filter';
 import 'rxjs/add/operator/publishReplay';
-import { connectableObservableDescriptor } from 'rxjs/observable/ConnectableObservable';
-import { Observer } from 'rxjs/Observer';
 
 export type ConsistentWith<T, U> = Pick<U, keyof T & keyof U>;
 

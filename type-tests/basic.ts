@@ -4,9 +4,3 @@ import { Conduit } from 'conduits';
 {
   type X = Conduit<{ a: string }, { a: boolean }>; // $ExpectError
 }
-
-// Can't use undefined values
-{
-  type X = Conduit<{ a: undefined }, {}>; // $ExpectError
-  type Y = Conduit<{}, { b: undefined }>; // $ExpectError
-}

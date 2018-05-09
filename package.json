@@ -8,6 +8,7 @@
   "license": "MIT",
   "devDependencies": {
     "@types/jest": "^22.2.3",
+    "coveralls": "^3.0.1",
     "dtslint": "^0.3.0",
     "jest": "^22.4.3",
     "prettier": "^1.12.1",
@@ -19,14 +20,16 @@
   },
   "scripts": {
     "build": "tsc",
-    "format":
-      "prettier $([ \"$CI\" == true ] && echo --list-different || echo --write) './**/*.{ts,tsx,js,json,css}'",
+    "format": "prettier $([ \"$CI\" == true ] && echo --list-different || echo --write) './**/*.{ts,tsx,js,json,css}'",
     "test": "jest --coverage",
     "test-types": "dtslint type-tests"
   },
   "jest": {
     "testRegex": "src/.*\\.spec.ts$",
-    "moduleFileExtensions": ["ts", "js"],
+    "moduleFileExtensions": [
+      "ts",
+      "js"
+    ],
     "transform": {
       "\\.ts$": "<rootDir>/node_modules/ts-jest/preprocessor"
     }

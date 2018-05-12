@@ -1,29 +1,22 @@
-import 'rxjs/add/observable/of';
-import 'rxjs/add/operator/delay';
-import 'rxjs/add/operator/do';
-import 'rxjs/add/operator/first';
-import 'rxjs/add/operator/map';
-import 'rxjs/add/operator/take';
+import { delay, first, map } from 'rxjs/operators';
 import { Conduit, emptyDataflow } from '.';
 
 it('basic', async () => {
   const c: Conduit<{ s: string }, { n: number }> = get => ({
-    n: get('s').map(s => s.length),
+    n: get('s').pipe(map(s => s.length)),
   });
   const n = await emptyDataflow
     .add(c)
     .add({ s: 'hello' })
     .run()
-    .n.first()
+    .n.pipe(first())
     .toPromise();
   expect(n).toBe(5);
 });
 
 it('loop', done => {
   const c: Conduit<{ n: number }, { n: number }> = get => ({
-    n: get('n')
-      .delay(1)
-      .map(n => n + 1),
+    n: get('n').pipe(delay(1), map(n => n + 1)),
   });
   emptyDataflow
     .add(c)

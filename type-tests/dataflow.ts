@@ -1,10 +1,8 @@
 import { Conduit, Dataflow, Source, emptyDataflow } from 'conduits';
-import { Observable } from 'rxjs/Observable';
-import 'rxjs/add/observable/never';
-import 'rxjs/add/observable/of';
+import { never as observableNever, of as observableOf } from 'rxjs';
 
-const stringOutput = Observable.of('hello');
-const neverOutput = Observable.never<never>();
+const stringOutput = observableOf('hello');
+const neverOutput = observableNever();
 
 // Same key can't appear in both input and output with different value types
 {

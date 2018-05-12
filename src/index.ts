@@ -1,9 +1,5 @@
-import { Observable } from 'rxjs/Observable';
-import { Observer } from 'rxjs/Observer';
-import { Subject } from 'rxjs/Subject';
-import 'rxjs/add/observable/of';
-import 'rxjs/add/operator/filter';
-import 'rxjs/add/operator/publishReplay';
+import { Observable, Observer, Subject, of as observableOf } from 'rxjs';
+import { publishReplay, refCount } from 'rxjs/operators';
 
 export type ConsistentWith<T, U> = Pick<U, keyof T & keyof U>;
 
@@ -50,7 +46,7 @@ function createDataflow<I, O extends ConsistentWith<O, I>>(
       const get = (name: string): IO => {
         if (!(name in subjects)) {
           const observer = new Subject();
-          const observable = observer.publishReplay(1).refCount();
+          const observable = observer.pipe(publishReplay(1), refCount());
           observable.subscribe(() => {}); // Avoid hanging
           subjects[name] = { observer, observable };
         }
@@ -77,7 +73,7 @@ function fromSource<O>(source: Source<O>): Conduit<{}, O> {
   const outputs: Outputs<O> = {} as any;
   for (const k in source) {
     const val = source[k];
-    outputs[k] = val instanceof Observable ? val : Observable.of(val);
+    outputs[k] = val instanceof Observable ? val : observableOf(val);
   }
   return () => outputs;
 }

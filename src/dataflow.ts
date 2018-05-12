@@ -1,6 +1,6 @@
-import { Observable, Observer, Subject } from 'rxjs';
-import { publishReplay, refCount } from 'rxjs/operators';
-import { Conduit, Outputs } from './conduit';
+import { Observable, Observer, Subject, combineLatest } from 'rxjs';
+import { map, publishReplay, refCount } from 'rxjs/operators';
+import { Conduit, GetInputs, Outputs } from './conduit';
 import { ConsistentWith } from './util';
 
 export interface IncompleteDataflow<I, O extends ConsistentWith<O, I>> {
@@ -29,9 +29,10 @@ function createDataflow<I, O extends ConsistentWith<O, I>>(
         observer: Observer<any>;
         observable: Observable<any>;
       }
+
       const subjects: Record<string, IO> = {};
 
-      const get = (name: string): IO => {
+      const getIO = (name: string): IO => {
         if (!(name in subjects)) {
           const observer = new Subject();
           const observable = observer.pipe(publishReplay(1), refCount());
@@ -41,12 +42,29 @@ function createDataflow<I, O extends ConsistentWith<O, I>>(
         return subjects[name];
       };
 
+      const getInputs = (((...names: (keyof I)[]) => {
+        const observablePairs = names.map(name =>
+          getIO(name).observable.pipe(map(value => tuple(name, value))),
+        );
+        return combineLatest(observablePairs).pipe(
+          map(pairs =>
+            pairs.reduce(
+              (o, [key, value]) => {
+                o[key] = value;
+                return o;
+              },
+              {} as I,
+            ),
+          ),
+        );
+      }) as any) as GetInputs<I>;
+
       const observables: Record<string, Observable<any>> = {};
       conduits.forEach(conduit => {
-        const outputs = conduit(name => get(name).observable);
+        const outputs = conduit(getInputs);
         for (const name in outputs) {
           const output = outputs[name];
-          const { observer, observable } = get(name);
+          const { observer, observable } = getIO(name);
           observables[name] = observable;
           output.subscribe(x => observer.next(x), e => observer.error(e));
         }
@@ -55,4 +73,8 @@ function createDataflow<I, O extends ConsistentWith<O, I>>(
       return observables;
     },
   } as any;
+}
+
+function tuple<A, B>(x: A, y: B): [A, B] {
+  return [x, y];
 }

@@ -3,7 +3,7 @@ import { Conduit, emptyDataflow, source } from '.';
 
 it('basic', async () => {
   const c: Conduit<{ s: string }, { n: number }> = get => ({
-    n: get('s').pipe(map(s => s.length)),
+    n: get('s').pipe(map(({ s }) => s.length)),
   });
   const n = await emptyDataflow
     .add(c)
@@ -16,7 +16,7 @@ it('basic', async () => {
 
 it('loop', done => {
   const c: Conduit<{ n: number }, { n: number }> = get => ({
-    n: get('n').pipe(delay(1), map(n => n + 1)),
+    n: get('n').pipe(delay(1), map(({ n }) => n + 1)),
   });
   emptyDataflow
     .add(c)

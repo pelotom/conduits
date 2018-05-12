@@ -1,15 +1,12 @@
-import { Observable, Observer, Subject, of as observableOf } from 'rxjs';
+import { Observable, Observer, Subject } from 'rxjs';
 import { publishReplay, refCount } from 'rxjs/operators';
-import { Conduit, Outputs, Source } from './conduit';
+import { Conduit, Outputs } from './conduit';
 import { ConsistentWith } from './util';
 
 export interface IncompleteDataflow<I, O extends ConsistentWith<O, I>> {
   add<I2 extends ConsistentWith<I2, I & O>, O2 extends ConsistentWith<O2, I & O & I2>>(
     other: Conduit<I2, O2>,
   ): Dataflow<I & I2, O & O2>;
-  add<O2 extends {} extends O2 ? never : ConsistentWith<O2, I & O>>(
-    o: Source<O2>,
-  ): Dataflow<I, O & O2>;
 }
 
 export interface CompleteDataflow<I, O extends I> extends IncompleteDataflow<I, O> {
@@ -26,7 +23,7 @@ function createDataflow<I, O extends ConsistentWith<O, I>>(
   conduits: Conduit<I, O>[],
 ): Dataflow<I, O> {
   return {
-    add: (o: any) => createDataflow([...conduits, typeof o === 'function' ? o : fromSource(o)]),
+    add: (c: any) => createDataflow([...conduits, c]),
     run(): Record<string, Observable<any>> {
       interface IO {
         observer: Observer<any>;
@@ -58,13 +55,4 @@ function createDataflow<I, O extends ConsistentWith<O, I>>(
       return observables;
     },
   } as any;
-}
-
-function fromSource<O>(source: Source<O>): Conduit<{}, O> {
-  const outputs: Outputs<O> = {} as any;
-  for (const k in source) {
-    const val = source[k];
-    outputs[k] = val instanceof Observable ? val : observableOf(val);
-  }
-  return () => outputs;
 }

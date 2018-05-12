@@ -1,4 +1,4 @@
-import { Conduit, Dataflow, Source, emptyDataflow } from 'conduits';
+import { Conduit, Dataflow, emptyDataflow, source } from 'conduits';
 import { never as observableNever, of as observableOf } from 'rxjs';
 
 const stringOutput = observableOf('hello');
@@ -14,14 +14,14 @@ const neverOutput = observableNever();
 emptyDataflow;
 
 // $ExpectType CompleteDataflow<{}, { hello: string; }>
-emptyDataflow.add({ hello: 'world' });
+emptyDataflow.add(source({ hello: 'world' }));
 
 // Adding a conduit
 (c: Conduit<{ a: string; b: number }, { c: boolean; b: number }>) => {
   // $ExpectType IncompleteDataflow<{ a: string; b: number; }, { c: boolean; b: number; }>
   const incomplete = emptyDataflow.add(c);
   // $ExpectType CompleteDataflow<{ a: string; b: number; }, { c: boolean; b: number; } & { a: string; }>
-  const complete = incomplete.add({ a: 'foo' });
+  const complete = incomplete.add(source({ a: 'foo' }));
   const outputs = complete.run();
   outputs.a; // $ExpectType Observable<string>
   outputs.b; // $ExpectType Observable<number>
@@ -54,12 +54,4 @@ emptyDataflow.add({ hello: 'world' });
 };
 (d: Dataflow<{}, { a: string }>, c: Conduit<{}, { a: number }>) => {
   d.add(c); // $ExpectError
-};
-
-// Adding inconsistent sources
-(d: Dataflow<{ a: string }, {}>, s: Source<{ a: number }>) => {
-  d.add(s); // $ExpectError
-};
-(d: Dataflow<{}, { a: string }>, s: Source<{ a: number }>) => {
-  d.add(s); // $ExpectError
 };

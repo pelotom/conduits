@@ -1,5 +1,5 @@
 import { delay, first, map } from 'rxjs/operators';
-import { Conduit, emptyDataflow } from '.';
+import { Conduit, emptyDataflow, source } from '.';
 
 it('basic', async () => {
   const c: Conduit<{ s: string }, { n: number }> = get => ({
@@ -7,7 +7,7 @@ it('basic', async () => {
   });
   const n = await emptyDataflow
     .add(c)
-    .add({ s: 'hello' })
+    .add(source({ s: 'hello' }))
     .run()
     .n.pipe(first())
     .toPromise();
@@ -20,7 +20,7 @@ it('loop', done => {
   });
   emptyDataflow
     .add(c)
-    .add({ n: 0 })
+    .add(source({ n: 0 }))
     .run()
     .n.subscribe(n => {
       if (n === 5) done();

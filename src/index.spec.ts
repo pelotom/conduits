@@ -26,3 +26,16 @@ it('loop', done => {
       if (n === 5) done();
     });
 });
+
+it('multi', async () => {
+  const c: Conduit<{ s1: string; s2: string }, { n: number }> = get => ({
+    n: get('s1', 's2').pipe(map(({ s1, s2 }) => s1.length + s2.length)),
+  });
+  const n = await emptyDataflow
+    .add(c)
+    .add(source({ s1: 'hello', s2: 'world' }))
+    .run()
+    .n.pipe(first())
+    .toPromise();
+  expect(n).toBe(10);
+});

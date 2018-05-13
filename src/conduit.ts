@@ -48,11 +48,22 @@ export interface Conduit<I, O extends ConsistentWith<O, I>> {
   (get: GetInputs<I>): Outputs<O>;
 }
 
-export const source = <O>(src: { [K in keyof O]: O[K] | Observable<O[K]> }): Conduit<{}, O> => {
+export function source<O>(src: { [K in keyof O]: O[K] | Observable<O[K]> }): Conduit<{}, O> {
   const outputs: Outputs<O> = {} as any;
   for (const k in src) {
     const val = src[k];
     outputs[k] = val instanceof Observable ? val : observableOf(val);
   }
   return () => outputs;
-};
+}
+
+export function sink<I>(snk: { [K in keyof I]: ($: Observable<I[K]>) => void }): Conduit<I, {}> {
+  return get => {
+    const observables: { [K in keyof I]: Observable<I[K]> } = get.apply(
+      undefined,
+      Object.keys(snk),
+    );
+    for (const k in observables) snk[k](observables[k]);
+    return {};
+  };
+}

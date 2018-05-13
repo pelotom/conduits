@@ -3,15 +3,17 @@ import { map, publishReplay, refCount } from 'rxjs/operators';
 import { Conduit, GetInputs, Outputs } from './conduit';
 import { ConsistentWith } from './util';
 
-export interface IncompleteDataflow<I, O extends ConsistentWith<O, I>> {
+export interface BaseDataflow<I, O extends ConsistentWith<O, I>> {
   add<I2 extends ConsistentWith<I2, I & O>, O2 extends ConsistentWith<O2, I & O & I2>>(
     other: Conduit<I2, O2>,
   ): Dataflow<I & I2, O & O2>;
 }
 
-export interface CompleteDataflow<I, O extends I> extends IncompleteDataflow<I, O> {
+export interface CompleteDataflow<I, O extends I> extends BaseDataflow<I, O> {
   run(): Outputs<O>;
 }
+
+export interface IncompleteDataflow<I, O extends ConsistentWith<O, I>> extends BaseDataflow<I, O> {}
 
 export type Dataflow<I, O extends ConsistentWith<O, I>> = O extends I
   ? CompleteDataflow<I, O>

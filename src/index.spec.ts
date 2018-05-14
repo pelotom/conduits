@@ -12,9 +12,10 @@ it('basic', done => {
     });
     return {};
   };
+  const d = emptyDataflow.add(source({ s: 'hello' })).add(c);
   emptyDataflow
-    .add(c)
     .add(source({ s: 'hello' }))
+    .add(c)
     .add(sink)
     .run();
 });
@@ -30,8 +31,8 @@ it('loop', done => {
     return {};
   };
   emptyDataflow
-    .add(c)
     .add(source({ n: 0 }))
+    .add(c)
     .add(sink)
     .run();
 });
@@ -48,8 +49,8 @@ it('multi', done => {
     return {};
   };
   emptyDataflow
-    .add(c)
     .add(source({ s1: 'hello', s2: 'world' }))
+    .add(c)
     .add(sink)
     .run();
 });

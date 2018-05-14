@@ -3,27 +3,23 @@ import { map, publishReplay, refCount } from 'rxjs/operators';
 import { Conduit, GetInputs } from './conduit';
 import { ConsistentWith } from './util';
 
-export interface BaseDataflow<I, O extends ConsistentWith<O, I>> {
-  add<I2 extends ConsistentWith<I2, I & O>, O2 extends ConsistentWith<O2, I & O & I2>>(
-    other: Conduit<I2, O2>,
-  ): Dataflow<I & I2, O & O2>;
+export interface BaseDataflow<I, O extends I> {
+  add<C extends Conduit<O, ConsistentWith<O>>>(
+    other: C,
+  ): C extends Conduit<infer I2, infer O2> ? Dataflow<I & I2, O & I2 & O2> : never;
 }
 
 export interface CompleteDataflow<X> extends BaseDataflow<X, X> {
   run(): void;
 }
 
-export interface IncompleteDataflow<I, O extends ConsistentWith<O, I>> extends BaseDataflow<I, O> {}
+export interface IncompleteDataflow<I, O extends I> extends BaseDataflow<I, O> {}
 
-export type Dataflow<I, O extends ConsistentWith<O, I>> = I extends O
-  ? O extends I ? CompleteDataflow<I> : IncompleteDataflow<I, O>
-  : IncompleteDataflow<I, O>;
+export type Dataflow<I, O extends I> = I extends O ? CompleteDataflow<I> : IncompleteDataflow<I, O>;
 
 export const emptyDataflow: Dataflow<{}, {}> = createDataflow([]);
 
-function createDataflow<I, O extends ConsistentWith<O, I>>(
-  conduits: Conduit<I, O>[],
-): Dataflow<I, O> {
+function createDataflow<I, O extends I>(conduits: Conduit<I, O>[]): Dataflow<I, O> {
   return {
     add: (c: any) => createDataflow([...conduits, c]),
     run(): Record<string, Observable<any>> {

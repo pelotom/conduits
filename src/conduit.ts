@@ -44,7 +44,7 @@ export interface GetInputs<I> {
 }
 export type Outputs<O> = { [K in keyof O]: Observable<O[K]> };
 
-export interface Conduit<I, O extends ConsistentWith<O, I>> {
+export interface Conduit<I, O extends ConsistentWith<I>> {
   (get: GetInputs<I>): Outputs<O>;
 }
 

@@ -1,1 +1,1 @@
-export type ConsistentWith<T, U> = Pick<U, keyof T & keyof U>;
+export type ConsistentWith<T> = Partial<T> & Record<string, any>;

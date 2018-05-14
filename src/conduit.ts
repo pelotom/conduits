@@ -56,14 +56,3 @@ export function source<O>(src: { [K in keyof O]: O[K] | Observable<O[K]> }): Con
   }
   return () => outputs;
 }
-
-export function sink<I>(snk: { [K in keyof I]: ($: Observable<I[K]>) => void }): Conduit<I, {}> {
-  return get => {
-    const observables: { [K in keyof I]: Observable<I[K]> } = get.apply(
-      undefined,
-      Object.keys(snk),
-    );
-    for (const k in observables) snk[k](observables[k]);
-    return {};
-  };
-}

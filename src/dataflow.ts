@@ -1,6 +1,6 @@
 import { Observable, Observer, Subject, combineLatest } from 'rxjs';
 import { map, publishReplay, refCount } from 'rxjs/operators';
-import { Conduit, GetInputs, Outputs } from './conduit';
+import { Conduit, GetInputs } from './conduit';
 import { ConsistentWith } from './util';
 
 export interface BaseDataflow<I, O extends ConsistentWith<O, I>> {
@@ -9,14 +9,14 @@ export interface BaseDataflow<I, O extends ConsistentWith<O, I>> {
   ): Dataflow<I & I2, O & O2>;
 }
 
-export interface CompleteDataflow<I, O extends I> extends BaseDataflow<I, O> {
-  run(): Outputs<O>;
+export interface CompleteDataflow<X> extends BaseDataflow<X, X> {
+  run(): void;
 }
 
 export interface IncompleteDataflow<I, O extends ConsistentWith<O, I>> extends BaseDataflow<I, O> {}
 
-export type Dataflow<I, O extends ConsistentWith<O, I>> = O extends I
-  ? CompleteDataflow<I, O>
+export type Dataflow<I, O extends ConsistentWith<O, I>> = I extends O
+  ? O extends I ? CompleteDataflow<I> : IncompleteDataflow<I, O>
   : IncompleteDataflow<I, O>;
 
 export const emptyDataflow: Dataflow<{}, {}> = createDataflow([]);

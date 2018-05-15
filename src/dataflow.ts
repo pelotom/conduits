@@ -23,26 +23,12 @@ function createDataflow<I, O extends I>(conduits: Conduit<I, O>[]): Dataflow<I, 
   return {
     add: (c: any) => createDataflow([...conduits, c]),
     run(): Record<string, Observable<any>> {
-      interface IO {
-        observer: Observer<any>;
-        observable: Observable<any>;
-      }
-
-      const subjects: Record<string, IO> = {};
-
-      const getIO = (name: string): IO => {
-        if (!(name in subjects)) {
-          const observer = new Subject();
-          const observable = observer.pipe(publishReplay(1), refCount());
-          observable.subscribe(() => {}); // Avoid hanging
-          subjects[name] = { observer, observable };
-        }
-        return subjects[name];
-      };
+      const observers: Record<string, Observer<any>> = {};
+      const observables: Record<string, Observable<any>> = {};
 
       const getInputs = (((...names: (keyof I)[]) => {
         const observablePairs = names.map(name =>
-          getIO(name).observable.pipe(map(value => tuple(name, value))),
+          observables[name].pipe(map(value => tuple(name, value))),
         );
         return combineLatest(observablePairs).pipe(
           map(pairs =>
@@ -57,13 +43,18 @@ function createDataflow<I, O extends I>(conduits: Conduit<I, O>[]): Dataflow<I, 
         );
       }) as any) as GetInputs<I>;
 
-      const observables: Record<string, Observable<any>> = {};
       conduits.forEach(conduit => {
         const outputs = conduit(getInputs);
         for (const name in outputs) {
           const output = outputs[name];
-          const { observer, observable } = getIO(name);
-          observables[name] = observable;
+          let observer = observers[name];
+          if (!observer) {
+            const subject = new Subject();
+            const observable = subject.pipe(publishReplay(1), refCount());
+            observable.subscribe(() => {}); // Avoid hanging
+            observers[name] = observer = subject;
+            observables[name] = observable;
+          }
           output.subscribe(x => observer.next(x), e => observer.error(e));
         }
       });

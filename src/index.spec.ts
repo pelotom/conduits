@@ -5,7 +5,6 @@ it('basic', done => {
   const c: Conduit<{ s: string }, { n: number }> = get => ({
     n: get('s').pipe(map(({ s }) => s.length)),
   });
-  const d = emptyDataflow.add(source({ s: 'hello' })).add(c);
   emptyDataflow
     .add(source({ s: 'hello' }))
     .add(c)

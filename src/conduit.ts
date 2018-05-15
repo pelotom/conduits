@@ -1,4 +1,5 @@
 import { Observable, of as observableOf } from 'rxjs';
+import { map } from 'rxjs/operators';
 import { ConsistentWith } from './util';
 
 export interface GetInputs<I> {
@@ -55,4 +56,16 @@ export function source<O>(src: { [K in keyof O]: O[K] | Observable<O[K]> }): Con
     outputs[k] = val instanceof Observable ? val : observableOf(val);
   }
   return () => outputs;
+}
+
+export function sink<K extends string, I extends Record<K, any>>(
+  k: K,
+  fn: (arg: I[K]) => void,
+): Conduit<I, {}> {
+  return get => {
+    get(k)
+      .pipe(map(o => o[k]))
+      .subscribe(fn);
+    return {};
+  };
 }
